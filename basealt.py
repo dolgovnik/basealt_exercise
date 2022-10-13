@@ -51,24 +51,22 @@ class Branch:
 
         return arch_packages_data
 
+    @staticmethod
+    def prepare_list(r_set: set, data: list) -> list:
+        lst = list(r_set)
+        lst.sort()
+        return [(p, data['packages'][p]['version']) for p in lst]
+
     def compare(self, other: 'Branch') -> None:
         self.comparsion_result = {'compared_to_branch': other.branch}
 
         for arch, data in self.packages_sets.items():
             self.comparsion_result[arch] = {}
-            added_names = list(data['packages_set'] - other.packages_sets[arch]['packages_set'])
-            added_names.sort()
-            added = []
-            for p in added_names:
-                added.append((p, data['packages'][p]['version']))
-            removed_names = list(other.packages_sets[arch]['packages_set'] - data['packages_set'])
-            removed_names.sort()
-            removed = []
-            for p in removed_names:
-                removed.append((p, other.packages_sets[arch]['packages'][p]['version']))
+            added_names = data['packages_set'] - other.packages_sets[arch]['packages_set']
+            self.comparsion_result[arch]['added'] = self.prepare_list(added_names, data)
 
-            self.comparsion_result[arch]['added'] = added
-            self.comparsion_result[arch]['removed'] = removed
+            removed_names = other.packages_sets[arch]['packages_set'] - data['packages_set']
+            self.comparsion_result[arch]['removed'] = self.prepare_list(removed_names, other.packages_sets[arch])
 
             intersected = list(data['packages_set'].intersection(other.packages_sets[arch]['packages_set']))
             intersected.sort()
