@@ -19,7 +19,7 @@ class Branch:
         if 'errors' in self.raw_archs:
             raise Exception(self.raw_archs['errors'])
 
-        self.archs_set = {i['arch'] for i in self.raw_archs['archs']}
+        self.archs_set = [i['arch'] for i in self.raw_archs['archs']]
 
         # Get all packages for branch arch
         self.raw_packages = ioloop.run_until_complete(self._get_packages_for_arch())
@@ -58,15 +58,15 @@ class Branch:
         return [(p, data['packages'][p]['version']) for p in lst]
 
     def compare(self, other: 'Branch') -> None:
-        self.comparsion_result = {'current_branch': self.branch, 'compared_to_branch': other.branch}
+        self.comparsion_result = {'current_branch': self.branch, 'compared_to_branch': other.branch, 'result': {}}
 
         for arch, data in self.packages_sets.items():
-            self.comparsion_result[arch] = {}
+            self.comparsion_result['result'][arch] = {}
             added_names = data['packages_set'] - other.packages_sets[arch]['packages_set']
-            self.comparsion_result[arch]['added'] = self._prepare_list(added_names, data)
+            self.comparsion_result['result'][arch]['added'] = self._prepare_list(added_names, data)
 
             removed_names = other.packages_sets[arch]['packages_set'] - data['packages_set']
-            self.comparsion_result[arch]['removed'] = self._prepare_list(removed_names, other.packages_sets[arch])
+            self.comparsion_result['result'][arch]['removed'] = self._prepare_list(removed_names, other.packages_sets[arch])
 
             intersected = list(data['packages_set'].intersection(other.packages_sets[arch]['packages_set']))
             intersected.sort()
@@ -78,8 +78,8 @@ class Branch:
                         updated.append((p, data['packages'][p]['version'], other.packages_sets[arch]['packages'][p]['version']))
                 except TypeError:
                     suspicious.append((p, data['packages'][p]['version'], other.packages_sets[arch]['packages'][p]['version']))
-            self.comparsion_result[arch]['updated'] = updated
-            self.comparsion_result[arch]['suspicious'] = suspicious
+            self.comparsion_result['result'][arch]['updated'] = updated
+            self.comparsion_result['result'][arch]['suspicious'] = suspicious
 
     def compare_results_as_json(self) -> str:
         return json.dumps(self.comparsion_result)
