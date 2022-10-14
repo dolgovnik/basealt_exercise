@@ -53,13 +53,13 @@ if __name__ == '__main__':
 
             # If archetecture or type in input - filter result dict
             if args.arch:
-                archs_to_del = set(result['result'].keys()) - set(args.arch)
+                archs_to_del = result['result'].keys() - set(args.arch)
                 for a in archs_to_del:
                     del result['result'][a]
 
             if args.type:
                 for arch in result['result']:
-                    types_to_del = set(result['result'][arch].keys()) - set(args.type)
+                    types_to_del = result['result'][arch].keys() - set(args.type)
                     for a in types_to_del:
                         del result['result'][arch][a]
 

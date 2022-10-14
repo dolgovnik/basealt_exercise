@@ -36,7 +36,7 @@ class Branch:
                 continue
             self.packages_sets[arch['request_args']['arch']] = {'packages_set': {i['name'] for i in arch['packages']},
                                                                 'packages': {i['name']: i for i in arch['packages']}}
-        ioloop.close()
+        #ioloop.close()
 
     async def _ask_api(self, URL: str, params: dict = {}) -> dict:
         '''
